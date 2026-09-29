@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Survei Hijab Komunitas</title>
+<style>
+  :root {
+    --bg: #faf6f8; --kartu: #ffffff; --teks: #2b2530; --redup: #7a6f78;
+    --garis: #e8dde3; --aksen: #9b4f6e; --aksen-terang: #f4e6ec;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--teks);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 1.5rem; margin: 8px 0 4px; }
+  .sub { color: var(--redup); margin: 0 0 16px; font-size: .95rem; }
+
+  .tab-nav { display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid var(--garis); }
+  .tab-nav button { flex: 1; padding: 11px; font: inherit; font-weight: 600; color: var(--redup);
+    background: none; border: 0; border-bottom: 3px solid transparent; cursor: pointer; }
+  .tab-nav button.aktif { color: var(--aksen); border-bottom-color: var(--aksen); }
+  .tab { display: none; }
+  .tab.aktif { display: block; }
+
+  .kartu { background: var(--kartu); border: 1px solid var(--garis); border-radius: 12px;
+    padding: 18px; margin-bottom: 14px; }
+  .kartu h2 { font-size: 1rem; margin: 0 0 12px; color: var(--aksen); }
+  label.judul { display: block; font-weight: 600; font-size: .92rem; margin: 12px 0 6px; }
+  label.judul:first-of-type { margin-top: 0; }
+  .wajib::after { content: " *"; color: #c0392b; }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; padding: 10px 12px; font: inherit; color: inherit; background: #fff;
+    border: 1px solid var(--garis); border-radius: 8px; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--aksen); outline-offset: 0; }
+  textarea { min-height: 80px; resize: vertical; }
+  .bantu { color: var(--redup); font-size: .8rem; margin-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips label { position: relative; }
+  .chips input { position: absolute; opacity: 0; pointer-events: none; }
+  .chips span { display: inline-block; padding: 7px 14px; border: 1px solid var(--garis);
+    border-radius: 999px; font-size: .9rem; cursor: pointer; background: #fff; user-select: none; }
+  .chips input:checked + span { background: var(--aksen); border-color: var(--aksen); color: #fff; }
+  .skala { display: flex; gap: 8px; }
+  .skala label { flex: 1; position: relative; }
+  .skala input { position: absolute; opacity: 0; pointer-events: none; }
+  .skala span { display: block; text-align: center; padding: 10px 0; border: 1px solid var(--garis);
+    border-radius: 8px; cursor: pointer; background: #fff; font-weight: 600; }
+  .skala input:checked + span { background: var(--aksen); border-color: var(--aksen); color: #fff; }
+  .ujung { display: flex; justify-content: space-between; color: var(--redup); font-size: .78rem; margin-top: 4px; }
+  button.kirim { display: block; width: 100%; padding: 13px; font: inherit; font-weight: 600;
+    color: #fff; background: var(--aksen); border: 0; border-radius: 10px; cursor: pointer; }
+  button.kirim:disabled { opacity: .6; cursor: default; }
+  .tombol.sekunder { display: block; width: 100%; text-align: center; padding: 13px; margin-top: 10px;
+    background: var(--aksen-terang); color: var(--aksen); border: 0; border-radius: 10px;
+    font-weight: 600; cursor: pointer; }
+  .galat { background: #fdecea; color: #a12a1e; border: 1px solid #f5c6c0; padding: 10px 12px;
+    border-radius: 8px; margin-bottom: 12px; display: none; font-size: .9rem; }
+  #sukses { display: none; text-align: center; padding: 40px 10px; }
+  #sukses h2 { font-size: 1.4rem; margin-bottom: 6px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .kpi { background: var(--aksen-terang); border-radius: 10px; padding: 12px 14px; }
+  .kpi .angka { font-size: 1.5rem; font-weight: 700; color: var(--aksen); }
+  .kpi .label { font-size: .82rem; color: var(--redup); }
+  .dua { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .dua .kartu { margin-bottom: 0; }
+  .bar-row { display: grid; grid-template-columns: 130px 1fr 78px; gap: 8px; align-items: center;
+    margin: 7px 0; font-size: .88rem; }
+  .bar-label { overflow-wrap: anywhere; }
+  .bar { background: var(--aksen-terang); border-radius: 6px; height: 14px; overflow: hidden; }
+  .bar div { background: var(--aksen); height: 100%; border-radius: 6px; }
+  .bar-val { color: var(--redup); text-align: right; font-size: .8rem; }
+  .gulir { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { padding: 8px 6px; text-align: left; border-bottom: 1px solid var(--garis); }
+  th { color: var(--redup); font-weight: 600; font-size: .8rem; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  button.muat { padding: 9px 16px; font: inherit; font-weight: 600; color: var(--aksen);
+    background: var(--aksen-terang); border: 0; border-radius: 8px; cursor: pointer; float: right; }
+  .kosong { text-align: center; color: var(--redup); padding: 40px 10px; }
+  @media (max-width: 480px) { .bar-row { grid-template-columns: 100px 1fr 70px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Survei Hijab Komunitas</h1>
+  <p class="sub">Isi pengalamanmu memakai hijab, atau lihat rangkuman jawaban komunitas.</p>
+
+  <div class="tab-nav">
+    <button type="button" class="aktif" data-tab="form">Isi Survei</button>
+    <button type="button" data-tab="hasil">Lihat Hasil</button>
+  </div>
+
+  <!-- ===================== TAB: FORM ===================== -->
+  <div class="tab aktif" id="tab-form">
+    <div id="formArea">
+      <div class="galat" id="galat" role="alert"></div>
+      <form id="form" novalidate>
+        <div class="kartu">
+          <h2>Tentang produk</h2>
+          <label class="judul" for="nama">Nama panggilan (opsional)</label>
+          <input type="text" id="nama" maxlength="60" autocomplete="off">
+
+          <label class="judul wajib" for="produk">Nama produk / model</label>
+          <input type="text" id="produk" maxlength="80" placeholder="Contoh: Voal Premium Plisket" autocomplete="off">
+
+          <label class="judul wajib" for="merek">Merek</label>
+          <input type="text" id="merek" maxlength="60" placeholder="Contoh: Rabbani" autocomplete="off">
+
+          <label class="judul wajib" for="jenis">Jenis hijab</label>
+          <select id="jenis">
+            <option value="">Pilih...</option>
+            <option>Segiempat</option>
+            <option>Pashmina</option>
+            <option>Instan / bergo</option>
+            <option>Pashmina instan</option>
+            <option>Syar'i / khimar</option>
+            <option>Ciput / dalaman</option>
+            <option>Lainnya</option>
+          </select>
+
+          <label class="judul wajib" for="bahan">Jenis bahan</label>
+          <select id="bahan">
+            <option value="">Pilih...</option>
+            <option>Voal</option>
+            <option>Ceruti</option>
+            <option>Bella square</option>
+            <option>Katun</option>
+            <option>Diamond Italiano</option>
+            <option>Silk / satin</option>
+            <option>Wolfis</option>
+            <option>Tidak tahu</option>
+          </select>
+
+          <label class="judul wajib" for="warna">Warna</label>
+          <input type="text" id="warna" maxlength="40" placeholder="Contoh: Dusty pink" autocomplete="off">
+        </div>
+
+        <div class="kartu">
+          <h2>Pembelian</h2>
+          <label class="judul wajib" for="harga">Harga beli (Rp)</label>
+          <input type="number" id="harga" inputmode="numeric" min="1" placeholder="75000">
+          <div class="bantu">Isi angka saja, tanpa titik atau "Rp".</div>
+
+          <label class="judul wajib" for="tempat">Tempat membeli</label>
+          <select id="tempat">
+            <option value="">Pilih...</option>
+            <option>Toko resmi / gerai</option>
+            <option>Marketplace</option>
+            <option>Reseller / teman</option>
+            <option>Bazar / pameran</option>
+            <option>Hadiah</option>
+          </select>
+        </div>
+
+        <div class="kartu">
+          <h2>Pemakaian</h2>
+          <label class="judul">Situasi pemakaian (boleh lebih dari satu)</label>
+          <div class="chips" id="situasi"></div>
+        </div>
+
+        <div class="kartu">
+          <h2>Penilaian</h2>
+          <label class="judul wajib">Kepuasan keseluruhan</label>
+          <div class="skala" data-nama="puas"></div>
+          <div class="ujung"><span>Sangat tidak puas</span><span>Sangat puas</span></div>
+
+          <label class="judul wajib">Kenyamanan saat dipakai</label>
+          <div class="skala" data-nama="nyaman"></div>
+          <div class="ujung"><span>Tidak nyaman</span><span>Sangat nyaman</span></div>
+
+          <label class="judul wajib">Daya serap panas / keringat</label>
+          <div class="skala" data-nama="serap"></div>
+          <div class="ujung"><span>Panas / gerah</span><span>Adem / menyerap baik</span></div>
+
+          <label class="judul wajib">Ketahanan warna &amp; bahan</label>
+          <div class="skala" data-nama="tahan"></div>
+          <div class="ujung"><span>Cepat luntur/rusak</span><span>Sangat awet</span></div>
+
+          <label class="judul wajib">Akan membeli lagi?</label>
+          <div class="chips" id="beliLagi"></div>
+
+          <label class="judul" for="komentar">Komentar singkat (opsional)</label>
+          <textarea id="komentar" maxlength="500"></textarea>
+        </div>
+
+        <button type="submit" class="kirim" id="kirim">Kirim jawaban</button>
+      </form>
+    </div>
+
+    <div id="sukses">
+      <h2>Terima kasih!</h2>
+      <p class="sub">Jawabanmu sudah tersimpan.</p>
+      <button type="button" class="kirim" id="lagi">Isi untuk hijab lain</button>
+      <button type="button" class="tombol sekunder" id="keHasil">Lihat hasil survei</button>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: HASIL ===================== -->
+  <div class="tab" id="tab-hasil">
+    <button type="button" class="muat" id="muat">Perbarui data</button>
+    <div style="clear:both"></div>
+    <div id="isi"><div class="kosong">Memuat data...</div></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
